@@ -2,8 +2,10 @@ package com.rodrigobaraglia.urly.router;
 
 
 import com.rodrigobaraglia.urly.handler.UrlyHandler;
-import com.rodrigobaraglia.urly.model.dto.Ranking;
-import com.rodrigobaraglia.urly.model.dto.UrlDTO;
+import com.rodrigobaraglia.urly.model.Url;
+import com.rodrigobaraglia.urly.model.dto.ErrorDTO;
+import com.rodrigobaraglia.urly.model.dto.RankingDTO;
+import com.rodrigobaraglia.urly.model.dto.VisitsDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -26,10 +28,11 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 public class UrlyRoutes {
 
     @RouterOperations({
-            @RouterOperation(path = "/create", operation = @Operation(tags = {"URL Shortener Service"}, operationId = "createShortUrl", summary = "Takes a long URL and returns a short URL",
+            @RouterOperation(path = "/create", operation = @Operation(tags = {"URL Shortener Service"},
+                    operationId = "createShortUrl", summary = "Takes a long URL and returns a short URL",
                     requestBody = @RequestBody(content = @Content(schema = @Schema(implementation = String.class))),
-                    responses = {@ApiResponse(responseCode = "200", description = "Short URL successfully created", content = @Content(mediaType = "text/plain; charset=utf-8", schema = @Schema(implementation = String.class))),
-                    @ApiResponse(responseCode = "400", description = "Bad Request")})),
+                    responses = {@ApiResponse(responseCode = "200", description = "Short URL successfully created", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Url.class))),
+                            @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})),
             @RouterOperation(path = "/{shorturl}",
                     operation = @Operation(tags = {"URL Shortener Service"}, operationId = "navigateToUrl", summary = "Redirect to original url through short url",
                             parameters = {@Parameter(in = ParameterIn.PATH, name = "shorturl", description = "Short URL", schema = @Schema(implementation = String.class))},
@@ -38,14 +41,12 @@ public class UrlyRoutes {
             @RouterOperation(path = "/{shorturl}/visits",
                     operation = @Operation(tags = {"URL Shortener Service"}, operationId = "getVisitsToUrl", summary = "Get the number of visits to a short URL",
                             parameters = {@Parameter(in = ParameterIn.PATH, name = "shorturl", description = "Short URL", schema = @Schema(implementation = String.class))},
-                            responses = {@ApiResponse(responseCode = "200", description = "Succesful operation", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UrlDTO.class))),
-                            @ApiResponse(responseCode = "404", description = "Short URL not found", content = @Content(mediaType = "text/plain; charset=utf-8"))})),
-            @RouterOperation(path = "/ranking", operation = @Operation(tags = {"URL Shortener Service"}, operationId = "getMostVisitedRanking", summary = "Returns a ranking of the most visited URLs", 
-            responses = {@ApiResponse(responseCode = "200", description = "Succesfully got sorted list of short urls", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Ranking.class))),
-            @ApiResponse(responseCode = "202", description = "Request accepted but no data to show yet", content = @Content(mediaType = "text/plain; charset=utf-8")),
-            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "text/plain; charset=utf-8"))
-            }))
-    })
+                            responses = {@ApiResponse(responseCode = "200", description = "Succesful operation", content = @Content(mediaType = "application/json", schema = @Schema(implementation = VisitsDTO.class))),
+                                    @ApiResponse(responseCode = "404", description = "Short URL not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})),
+            @RouterOperation(path = "/ranking", operation = @Operation(tags = {"URL Shortener Service"}, operationId = "getMostVisitedRanking", summary = "Returns a ranking of the most visited URLs",
+                    responses = {@ApiResponse(responseCode = "200", description = "Succesfully got sorted list of short urls", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RankingDTO.class))),
+                            @ApiResponse(responseCode = "202", description = "Request accepted but no data to show yet", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+                            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))}))})
     @Bean
     public RouterFunction<ServerResponse> route(UrlyHandler handler) {
         return RouterFunctions.route()
@@ -53,7 +54,6 @@ public class UrlyRoutes {
                 .POST("/create", RequestPredicates.contentType(MediaType.TEXT_PLAIN), handler::createUrl)
                 .GET("/{shorturl}", handler::visit)
                 .GET("/{shorturl}/visits", handler::getVisits)
-
                 .build();
     }
 

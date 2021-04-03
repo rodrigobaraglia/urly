@@ -1,8 +1,8 @@
 package com.rodrigobaraglia.urly.repository;
 
 import com.rodrigobaraglia.urly.model.Url;
-import com.rodrigobaraglia.urly.model.dto.Ranking;
-import com.rodrigobaraglia.urly.model.dto.UrlDTO;
+import com.rodrigobaraglia.urly.model.dto.RankingDTO;
+import com.rodrigobaraglia.urly.model.dto.VisitsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
@@ -36,18 +36,18 @@ public class UrlyRedisRepository {
         return getLongUrl(shortUrl).flatMap(url -> incrVisitCount(shortUrl).thenReturn(url));
     }
 
-    public Mono<UrlDTO> getVisitCount(String shortUrl) {
+    public Mono<VisitsDTO> getVisitCount(String shortUrl) {
         return operations.opsForZSet()
                 .score(ranking, shortUrl)
                 .flatMap(visits -> operations.opsForValue().get(shortUrl)
-                        .map(longUrl -> new UrlDTO(shortUrl, longUrl, Math.round(visits))));
+                        .map(longUrl -> new VisitsDTO(shortUrl, longUrl, Math.round(visits))));
     }
 
-    public Mono<Ranking> getMostVisited() {
+    public Mono<RankingDTO> getMostVisited() {
 
         var results = operations.opsForZSet().reverseRangeWithScores(ranking,
                 Range.<Long>from(Range.Bound.inclusive(Long.valueOf(0))).to(Range.Bound.exclusive(Long.valueOf(10))))
-                .map(item -> item.getValue()).collectList().map(l -> new Ranking(l));
+                .map(item -> item.getValue()).collectList().map(l -> new RankingDTO(l));
         return results;
 
     }

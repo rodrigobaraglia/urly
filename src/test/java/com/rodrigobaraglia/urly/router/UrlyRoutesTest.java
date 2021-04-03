@@ -1,9 +1,8 @@
 package com.rodrigobaraglia.urly.router;
 
 import com.rodrigobaraglia.urly.handler.UrlyHandler;
-import com.rodrigobaraglia.urly.model.dto.Ranking;
-import com.rodrigobaraglia.urly.model.dto.UrlDTO;
-import com.rodrigobaraglia.urly.repository.UrlyRedisRepository;
+import com.rodrigobaraglia.urly.model.dto.RankingDTO;
+import com.rodrigobaraglia.urly.model.dto.VisitsDTO;
 import org.junit.After;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
-import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.test.StepVerifier;
 
@@ -68,14 +66,14 @@ class UrlyRoutesTest {
     @Test
     void testGetVisits() {
         var t = testClient.get().uri(shortPath + "/visits").exchange()
-                .expectStatus().isOk().expectBody(UrlDTO.class).returnResult().getResponseBody();
+                .expectStatus().isOk().expectBody(VisitsDTO.class).returnResult().getResponseBody();
         Assertions.assertTrue(Double.valueOf(t.getVisits()) > 0);
     }
 
     @Test
     void testTop10() {
         var result = testClient.get().uri("/top").exchange()
-                .returnResult(Ranking.class).getResponseBody();
+                .returnResult(RankingDTO.class).getResponseBody();
         StepVerifier.create(result.log())
                 .expectNextMatches(x -> x.getMostVisited().isEmpty() == false).verifyComplete();
 

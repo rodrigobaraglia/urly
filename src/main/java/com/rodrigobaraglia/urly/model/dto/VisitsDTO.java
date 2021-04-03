@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UrlDTO {
+public class VisitsDTO {
     private String shortUrl;
     private String longUrl;
     private long visits;

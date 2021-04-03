@@ -8,9 +8,9 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class Ranking {
+public class RankingDTO {
     private List<String> mostVisited = new ArrayList<>();
-   public Ranking(List<String> ranking) {
+   public RankingDTO(List<String> ranking) {
         this.mostVisited = ranking;
     }
 
