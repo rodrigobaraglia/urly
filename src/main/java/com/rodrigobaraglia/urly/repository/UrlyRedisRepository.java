@@ -20,8 +20,8 @@ public class UrlyRedisRepository {
 
     public Mono<Url> saveUrl(Url url) {
 
-        return operations.opsForValue().setIfAbsent(url.getId(), url.getUrl(), Duration.of(30, ChronoUnit.DAYS))
-                .then(operations.opsForZSet().add(ranking, url.getId(), 0)).thenReturn(url);
+        return operations.opsForValue().setIfAbsent(url.getShortUrl(), url.getLongUrl(), Duration.of(30, ChronoUnit.DAYS))
+                .then(operations.opsForZSet().add(ranking, url.getShortUrl(), 0)).thenReturn(url);
     }
 
     private Mono<Double> incrVisitCount(String shortUrl) {

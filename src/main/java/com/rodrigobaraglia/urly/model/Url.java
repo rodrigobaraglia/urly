@@ -9,12 +9,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Url {
-    private String id;
-    private String url;
+    private String shortUrl;
+    private String longUrl;
 
   public   Url(String url) {
-        this.id = new Base62().encode(Math.abs(UUID.randomUUID().hashCode()));
-        this.url = url;
+        this.shortUrl = new Base62().encode(Math.abs(UUID.randomUUID().hashCode()));
+        this.longUrl = url;
     }
 
 }
